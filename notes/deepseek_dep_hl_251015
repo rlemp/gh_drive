@@ -1,0 +1,71 @@
+2025-10-15  migros
+assets:ccp    -100
+expenses:alimentation     100
+
+
+++++++++++++++++++++++++++++++++++++++
+
+echo "${date_ajd}  migros
+assets:ccp    -100
+expenses:alimentation     100" > ~/Bureau/essai
+
++++++++++++++++++++++++++++++++++++++++++
+
+description='migros'
+montant='100'
+date_ajd=$(date +%Y-%m-%d)
+echo "${date_ajd}  $description
+assets:ccp    -$montant
+expenses:alimentation     $montant" > ~/Bureau/essai2
+
+
+++++++++++++++++++++++
+cd  ~/Bureau/
+date_ajd=$(date +%Y-%m-%d)
+read description montant < input
+echo "$(date +%Y-%m-%d)  $description"  >essai3
+echo "assets:ccp    -$montant"  >>essai3
+echo "expenses:alimentation     $montant"  >>essai3
+
++++++++++++++++++++fichier input+++++++++++++++++++++
+
+migros 100
+coop 50
+boulangerie 25
+
+++++++++++++script avec ligne vide++++++++++++++
+
+#!/bin/bash
+
+#########REANME################
+#sur le bureau, ce script coinverti in fichier 'input', exemple:
+
+#migros 100
+#coop 50
+#boulangerie 25
+
+#en un fichier temp sur le bureau en format hledger.journal
+#le fichier temp peut etre corriger/copier dans le terminal avec l'editeur micro
+
+############################
+
+cd ~/Bureau/
+date_ajd=$(date +%Y-%m-%d)
+
+# Une seule redirection pour toutes les écritures
+{
+    while IFS=' ' read -r description montant; do
+        if [[ -n "$description" && -n "$montant" ]]; then
+            echo "$date_ajd  $description"
+            echo "   assets:ccp    -$montant"
+            echo "   expenses:alimentation     $montant"
+            echo ""
+        fi
+    done < input
+} > temp
+micro temp
+
+&& exit
+
+
+++++++++++++++++++++++++++++++++++++

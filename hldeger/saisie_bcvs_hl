@@ -1,0 +1,136 @@
+
+
+#########README################
+
+#sur le bureau, ce script etablit/corrige un fichier 'input', exemple:
+
+#migros 100
+#coop 50
+#boulangerie 25
+
+#puis le convertit en un fichier temp sur le bureau en format hledger.journal;
+#le fichier temp peut etre corriger/copier dans le terminal avec l'editeur micro
+#avant de l'ajouter a ~/hledger.journal
+#le script termine en editant hledger.journal pour possible correction
+
+############################
+
+
+
+#!/bin/bash
+
+# +++++++++++++++++++++++++++++++++
+	# Fonction pour vérifier le format YYYY-MM-DD
+	
+	function is_valid_format {
+	    # Regex pour yyyy-mm-dd
+	    if [[ $1 =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+	        return 0 # Vrai
+	    else
+	        return 1 # Faux
+	    fi
+	}
+
+	# Fonction pour vérifier si la date est valide (existe réellement)
+	# Utilise 'date -d' pour tenter d'analyser la chaîne comme une date
+	function is_valid_date {
+	    # La commande 'date -d "$1"' renvoie 0 si la date est valide
+	    # et une erreur sinon (mais sa sortie doit être redirigée pour ne pas polluer l'écran)
+	    if date -d "$1" &> /dev/null; then
+	        return 0 # Vrai
+	    else
+	        return 1 # Faux
+	    fi
+	}
+# ++++++++++++++++++++++++++++++++++
+
+
+cd ~/Bureau/
+
+echo ""
+echo "etablir/corriger fichier-depenses entrant;"
+echo "enter pour continuer et ctrl Q pour quitter l'editeur "
+read -p ""
+
+micro input
+
+echo '; +++++++++++++' > output
+
+	# +++++++++variantes pour la date++++++++++++
+
+	#read -p 'a quelle date?  yyyy-mm-dd    '   date_ajd
+	#date_3j_apres=$(date -d "3 days" +%Y-%m-%d)
+	#date_3j_avant=$(date -d "3 days ago" +%Y-%m-%d)
+
+	#n=-3
+	#date_nj_apres=$(date -d "$n days" +%Y-%m-%d)
+	#date_ajd=$(date +%Y-%m-%d)
+
+	#+++++++++++++++++++++++++++++++++++++
+
+
+
+# Boucle principale de saisie et de validation
+while :
+do
+    read -p "A quelle date ? yyyy-mm-dd : " date_ajd
+
+    # 1. Vérification du format
+    if ! is_valid_format "$date_ajd"; then
+        echo "Erreur : Format incorrect. Utilisez le format 'yyyy-mm-dd'."
+        continue # Recommence la boucle
+    fi
+
+    # 2. Vérification de la validité de la date (ex: 2023-02-30 n'est pas valide)
+    if ! is_valid_date "$date_ajd"; then
+        echo "Erreur : Date invalide ou inexistante (ex: 2023-02-30). Veuillez vérifier les jours et les mois."
+        continue # Recommence la boucle
+    fi
+
+    # Si on arrive ici, le format et la date sont valides
+    echo "Date enregistrée : $date_ajd"
+    break # Sort de la boucle
+done
+
+# Une seule redirection pour toutes les écritures
+while IFS=' ' read -r description montant; do
+    if [[ -n "$description" && -n "$montant" ]]; then
+        echo "$date_ajd  $description"
+        echo "    assets:bcvs    -$montant"
+        echo "    expenses:alimentation      $montant"
+        echo ""
+    fi
+done < input >> output
+
+echo '; +++++++++++++' >> output
+
+	## verification du dichier des transactions output
+	#echo ""
+	#echo "corriger fichier de transactions sortant:"
+	#echo  "enter pour continuer et ctrl Q pour quitter l'editeur"
+	#read -p ""
+	#micro output 
+
+
+# ecriture et verification du .hledger.journal
+
+cp ~/.hledger.journal  ~/.hledger.journal.bak
+	#cp ~/.hledger.journal ~/.hledger.journal.bak$(($(ls ~/. | grep -o 'hledger.journal.bak[0-9]*' | wc -l) + 1))  # bak1 bak2
+	#cp ~/.hledger.journal ~/.hledger.journal.bak$(date +%Y%m%d_%H%M%S)
+	#cp ~/.hledger.journal ~/.hledger.journal.bak$(date +%y%m%d_%H%M)
+	#cp ~/.hledger.journal ~/.hledger.journal.bak$(date +%s)
+
+cat output >> ~/.hledger.journal 
+ 
+echo ""
+echo "verifier le journal:"
+echo  "enter pour continuer et ctrl Q pour quitter l'editeur"
+read -p ""
+micro   ~/.hledger.journal
+
+# nettoyage des fichiers input et output sur le Bureau
+rm input
+rm output
+
+# vue des transactions et soldes
+hledger areg bcvs

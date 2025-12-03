@@ -1,0 +1,25 @@
+#!/bin/bash
+
+cd ~/Bureau/
+
+read -p "USD_CHF?" usd
+
+date_ajd=$(date -d "1days ago" +%Y-%m-%d) # hier pour que hledger prenne la date en compte
+echo ""
+echo '; +++++++++++++' >output
+echo "P  $date_ajd  USD $usd CHF" >>output
+echo '; +++++++++++++' >>output
+echo ""
+
+cp ~/.hledger.journal ~/.hledger.journal.bak
+cat output >>~/.hledger.journal
+
+echo ""
+echo "verifier le journal:"
+echo "enter pour continuer et ctrl Q pour quitter l'editeur"
+read -p ""
+micro ~/.hledger.journal
+
+rm output
+
+hledger bal assets -e today -X CHF

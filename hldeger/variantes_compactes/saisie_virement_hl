@@ -1,0 +1,52 @@
+#!/bin/bash
+
+is_valid_format() {
+  [[ $1 =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] && return 0 || return 1
+}
+
+is_valid_date() {
+  date -d "$1" &>/dev/null && return 0 || return 1
+}
+
+cd ~/Bureau/
+echo ""
+echo "etablir/corriger fichier-virement bcvs>viseca;"
+echo "enter pour continuer et ctrl Q pour quitter l'editeur "
+read -p ""
+micro input
+echo '; +++++++++++++' >output
+
+while :; do
+  read -p "A quelle date ? yyyy-mm-dd : " date_ajd
+  is_valid_format "$date_ajd" || {
+    echo "Erreur : Format incorrect. Utilisez le format 'yyyy-mm-dd'."
+    continue
+  }
+  is_valid_date "$date_ajd" || {
+    echo "Erreur : Date invalide ou inexistante (ex: 2023-02-30). Veuillez vérifier les jours et les mois."
+    continue
+  }
+  echo "Date enregistrée : $date_ajd"
+  break
+done
+
+while IFS=' ' read -r montant; do
+  [ -n "$montant" ] && {
+    echo "$date_ajd   Virement bcvs à viseca"
+    echo "    assets:bcvs    -$montant"
+    echo "    assets:viseca"
+  }
+done <input >>output
+
+echo '; +++++++++++++' >>output
+cp ~/.hledger.journal ~/.hledger.journal.bak
+cat output >>~/.hledger.journal
+echo ""
+echo "verifier le journal:"
+echo "enter pour continuer et ctrl Q pour quitter l'editeur"
+read -p ""
+micro ~/.hledger.journal
+
+rm input
+rm output
+hledger areg viseca
