@@ -1,3 +1,5 @@
 cd ~/gh_drive && git add . && git commit -m "Mise à jour gh_drive" && git push origin main # synchro local>distant
 
 git log --oneline --graph --decorate  # liste commits
+
+git push --force origin main  # écraser distant avec local
