@@ -1,0 +1,42 @@
+#!/bin/bash
+ 
+# ***************************************************************************
+# README
+#  
+# Pour modifier (intervertir, etc) les pages 3-6 d'un fichier PDF `in.pdf` d'un quart de tour à droite, tout en laissant les pages 1,2 sans changement, la page 7 de 180°, le page 8 90° a gauche, 9-end:
+# 
+# in.pdf sur le bureau et lancer
+#     pdfmodifier      ........        "1-2 3-6right 7down 8left 9-end"   # ou 6east ou 8west
+# 
+# ***************************************************************************
+
+# Demande à l'utilisateur de saisir les pages à traiter
+read -p "Veuillez entrer les pages à traiter (ex: '1-2 3-6right 7down 8left 9-end' ): " pages
+echo $pages 
+# Change le répertoire de travail
+cd /home/lemp/Bureau || { echo "Échec de l'accès au répertoire"; exit 1; }
+
+# Exécute la commande pdftk avec les pages fournies par l'utilisateur
+pdftk in.pdf cat $pages output out.pdf
+
+echo "Les pages $pages ont été traitées et enregistrées dans out.pdf."
+
+
+# ***************************************************************************
+# 
+#     pdftk in.pdf cat 1-2 3-6right 7 output out.pdf   # right=east  down=upside-down
+# Dans cette commande :
+# - `pdftk in.pdf` spécifie le fichier PDF d'entrée.
+# - `cat 1-2 3-6east 7` indique que les pages 1 à 2, les pages 3 à 6 (tournées d'un quart de tour à droite, comme indiqué par `east`),
+#    et la page 7 doivent être incluses dans le fichier de sortie.
+# - `output out.pdf` définit le nom du fichier PDF de sortie.
+# 
+# Cette commande utilise `pdftk` pour combiner et manipuler les pages du fichier PDF d'entrée selon les spécifications fournies.
+# L'option `east` est utilisée pour indiquer une rotation de 90 degrés à droite pour les pages spécifiées.
+
+# Acceptable keywords, for example: "even" or "odd" "end".
+# To rotate pages, use: "north" "south" "east"
+#     "west" "left" "right" or "down"
+# 
+# **************************************************************************
+

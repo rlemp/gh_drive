@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# afficher un mode d'emploi
+
+cat << EOF
+
+Veuillez entrer les pages à traiter:
+
+(ex:   1-2 3-5right 7down 8left 9-end )
+        (6 non mentionnee est eliminee)
+
+(ex:   1-end ~6 = tout sauf la page 6)
+
+(ex:   1-rightend= toutes les page a droite
+         evenright= les pages paires a droite
+         odd right= pages impaires a droite)
+    
+rem:  5right : tourne la page à droite en paysage.
+        5r : Tourne la page vers la droite de 90°
+
+
+EOF
+
+
+
+	# Demander la saisie
+	read -p "Entrez les pages et rotations (ex: 1-endright ~6) : " saisie
+
+	# Nettoyage : on enlève les espaces superflus au début et à la fin
+	saisie=$(echo "$saisie" | xargs)
+
+	# Expression régulière simple pour valider les caractères autorisés :
+	# Chiffres, tirets, tilde (~), espaces, et les mots clés (end, right, left, north, south, east, west)
+	regex='^[0-9a-zA-Z ~-]+$'
+
+	if [[ -z "$saisie" ]]; then
+	    echo "❌ Erreur : La saisie est vide."
+	    exit 1
+	fi
+
+	if [[ ! "$saisie" =~ $regex ]]; then
+	    echo "❌ Erreur : Caractères non autorisés détectés dans '$saisie'."
+	    echo "Utilisez uniquement des chiffres, '-', '~' et les mots-clés de rotation."
+	    exit 1
+	fi
+
+	# Si tout est OK, on transforme en tableau et on exécute
+	arguments=($saisie)
+	echo "✅ Validation réussie. Exécution de pdftk avec : ${arguments[*]}"
+
+	
+	
+	
+# Change le répertoire de travail
+cd /home/lemp/Bureau || { echo "Échec de l'accès au répertoire"; exit 1; }
+
+# Vérifie si le fichier in.pdf existe
+if [[ ! -f in.pdf ]]; then
+    echo "Le fichier in.pdf n'existe pas dans le répertoire courant."
+    exit 1
+fi
+
+
+	pdftk in.pdf cat "${arguments[@]}" output out.pdf
+	
+	
+# Vérifie si la commande pdftk a réussi
+if [[ $? -eq 0 ]]; then
+    echo "Les pages $pages ont été traitées et enregistrées dans out.pdf."
+else
+    echo "Une erreur s'est produite lors du traitement des pages."

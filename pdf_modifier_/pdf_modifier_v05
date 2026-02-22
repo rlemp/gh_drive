@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# 1. Aller dans le répertoire de travail
+cd /home/lemp/Bureau || { echo "❌ Échec de l'accès au répertoire"; exit 1; }
+
+# 2. Vérifier si le fichier source existe
+if [[ ! -f in.pdf ]]; then
+    echo "❌ Le fichier in.pdf n'existe pas dans le répertoire courant."
+    exit 1
+fi
+
+# 3. Afficher le mode d'emploi complété
+cat << EOF
+-------------------------------------------------------------------------
+            MODE D'EMPLOI PDFTK (Extraction et Rotation)
+-------------------------------------------------------------------------
+SÉLECTION :
+  1-5 7-end     : Garde les pages 1 à 5 et 7 à la fin (élimine la 6).
+  ~6      : Tout le document SAUF la page 6.
+
+ROTATIONS ABSOLUES (Fixe l'orientation finale peu importe le départ) :
+  5right ou 5east  : Force la page 5 en paysage (90° horaire).
+  5south ou 5down  : Force la page 5 tête en bas (180°).
+  5north ou 5up  : Force la page 5 en mode portrait normal (0°).
+-------------------------------------------------------------------------
+EOF
+
+# 4. Demander la saisie
+read -p "Entrez votre sélection : " saisie
+
+# Nettoyage
+saisie=$(echo "$saisie" | xargs)
+
+# 5. Regex mis à jour (ajoute r, l, s pour le relatif)
+# On autorise les chiffres, lettres (majuscules/minuscules), espaces, tildes et tirets
+regex='^[0-9a-zA-Z ~-]+$'
+
+if [[ -z "$saisie" ]]; then
+    echo "❌ Erreur : La saisie est vide."
+    exit 1
+fi
+
+if [[ ! "$saisie" =~ $regex ]]; then
+    echo "❌ Erreur : Caractères non autorisés détectés."
+    exit 1
+fi
+
+# 6. Transformation en tableau
+arguments=($saisie)
+
+# 7. Exécution
+echo "⏳ Traitement en cours..."
+pdftk in.pdf cat "${arguments[@]}" output out.pdf
+
+# 8. Vérification finale
+if [[ $? -eq 0 ]]; then
+    echo "✅ Succès ! Les instructions [$saisie] ont été appliquées."
+else
+    echo "❌ Une erreur s'est produite. Vérifiez la syntaxe (ex: 5right et non 5-right)."
+fi

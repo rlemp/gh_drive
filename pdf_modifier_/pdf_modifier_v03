@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# 1. Aller dans le répertoire de travail en premier
+cd /home/lemp/Bureau || { echo "❌ Échec de l'accès au répertoire /home/lemp/Bureau"; exit 1; }
+
+# 2. Vérifier si le fichier source existe
+if [[ ! -f in.pdf ]]; then
+    echo "❌ Le fichier in.pdf n'existe pas dans le répertoire courant."
+    exit 1
+fi
+
+# 3. Afficher le mode d'emploi (corrigé)
+cat << EOF
+--------------------------------------------------------------
+MODE D'EMPLOI PDFTK (Extraction et Rotation)
+--------------------------------------------------------------
+Exemples de saisie :
+- 1-5 7-10       : Garde les pages 1 à 5 et 7 à 10 (élimine la 6).
+- 1-endright     : Tout le document pivoté à 90° vers la droite.
+- 1-end ~6       : Tout le document sauf la page 6.
+- evenright      : Uniquement les pages paires, pivotées à droite.
+- 1-3east 4      : Pages 1 à 3 à droite, page 4 normale.
+
+Rotations : north (0°), south (180°), east/right (90°), west/left (-90°)
+--------------------------------------------------------------
+EOF
+
+# 4. Demander la saisie
+read -p "Votre choix : " saisie
+
+# Nettoyage et Validation
+saisie=$(echo "$saisie" | xargs)
+regex='^[0-9a-zA-Z ~-]+$'
+
+if [[ -z "$saisie" ]]; then
+    echo "❌ Erreur : La saisie est vide."
+    exit 1
+fi
+
+if [[ ! "$saisie" =~ $regex ]]; then
+    echo "❌ Erreur : Caractères non autorisés détectés."
+    exit 1
+fi
+
+# 5. Transformation en tableau
+arguments=($saisie)
+
+# 6. Exécution
+echo "⏳ Traitement en cours..."
+pdftk in.pdf cat "${arguments[@]}" output out.pdf
+
+# 7. Vérification finale (Correction de la variable $saisie)
+if [[ $? -eq 0 ]]; then
+    echo "✅ Succès ! Les instructions [$saisie] ont été appliquées dans out.pdf."
+else
+    echo "❌ Une erreur s'est produite durant l'exécution de pdftk."
+fi

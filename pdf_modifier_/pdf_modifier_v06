@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# 1. Aller dans le répertoire de travail
+cd /home/lemp/Bureau || { echo "❌ Échec de l'accès au répertoire"; exit 1; }
+
+# 2. Vérifier si le fichier source existe
+if [[ ! -f in.pdf ]]; then
+    echo "❌ Le fichier in.pdf n'existe pas dans le répertoire courant."
+    exit 1
+fi
+
+# 3. Mode d'emploi mis à jour (Syntaxe 1-end~4~6)
+cat << EOF
+-------------------------------------------------------------------------
+            MODE D'EMPLOI PDFTK (Extraction et Rotation)
+-------------------------------------------------------------------------
+SÉLECTION ET EXCLUSION :
+  1-end         : Sélectionne tout le document[cite: 56, 58].
+  1-end~4~6     : Tout le document SAUF les pages 4 et 6.
+                  (Note: Ne pas mettre d'espace entre les tildes)
+  1-10~5        : Pages 1 à 10, sauf la page 5.
+
+ROTATIONS (ABSOLUES ET RELATIVES):
+  ...right      : Tourne la page de +90° (sens horaire).
+  ...left       : Tourne la page de -90° (sens anti-horaire).
+  ...south      : Tourne la page de 180° (tête en bas).
+  ...north      : Remet la page en position normale (0°).
+
+QUALIFICATEURS DE PAGES :
+  even          : Ne prend que les pages paires (ex: 1-10even)[cite: 47].
+  odd           : Ne prend que les pages impaires (ex: 1-10odd)[cite: 48].
+
+EXEMPLES COMBINÉS :
+  1-end~4~6right : Tout le PDF moins p4 et p6, le tout en paysage.
+  1-5 10-15left  : Pages 1-5 normales et 10-15 pivotées à gauche.
+-------------------------------------------------------------------------
+EOF
+
+# 4. Demander la saisie
+read -p "Entrez votre sélection : " saisie
+
+# Nettoyage
+saisie=$(echo "$saisie" | xargs)
+
+# 5. Validation du Regex
+regex='^[0-9a-zA-Z ~-]+$'
+
+if [[ -z "$saisie" ]]; then
+    echo "❌ Erreur : La saisie est vide."
+    exit 1
+fi
+
+if [[ ! "$saisie" =~ $regex ]]; then
+    echo "❌ Erreur : Caractères non autorisés détectés."
+    exit 1
+fi
+
+# 6. Transformation en tableau pour protéger les tildes 
+arguments=($saisie)
+
+# 7. Exécution
+echo "⏳ Traitement en cours..."
+pdftk in.pdf cat "${arguments[@]}" output out.pdf
+
+# 8. Vérification finale
+if [[ $? -eq 0 ]]; then
+    echo "✅ Succès ! Le fichier out.pdf a été généré avec : $saisie"
+else
+    echo "❌ Erreur pdftk. Vérifiez que les numéros de pages sont valides."
+fi
