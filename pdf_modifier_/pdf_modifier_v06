@@ -5,7 +5,7 @@ cd /home/lemp/Bureau || { echo "❌ Échec de l'accès au répertoire"; exit 1; 
 
 # 2. Vérifier si le fichier source existe
 if [[ ! -f in.pdf ]]; then
-    echo "❌ Le fichier in.pdf n'existe pas dans le répertoire courant."
+    echo "❌ Le fichier in.pdf n'existe pas sur le Bureau."
     exit 1
 fi
 

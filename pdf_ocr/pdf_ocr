@@ -1,0 +1,92 @@
+
+
+#	# README ################################
+#	# ce script extrait par OCR le texte (output.txt et output_fr.txt) du pdf image (input.pdf)
+#	# Input.pdf provient du script 'scanner', par exemple, ou du scanner de Gdocs/android
+#	# Placer input.pdf sur le Bureau
+#	# Lancer cd Bureau ; pdf_ocr
+#	# ######################################
+
+#	#	#!/bin/bash
+
+#	#	# extraction des image png
+#	#	pdftoppm -png input.pdf temp && 
+
+#	#	# lecture des images png par OCR
+#	#	for file in temp-*.png; do     tesseract "$file" "${file%.png}" -l fra+eng 
+#	#	done &&
+
+#	#	# grouper les fichiers en un fichier txt 
+#	#	cat temp-*.txt > output.txt   &&
+#	#	 
+#	#	# supprimer les fichiers temporaires -image et -texte
+#	#	rm temp-*.png temp-*.txt
+
+#	#	# traduire en francais (de l'allemand, auto, en , etc ) 
+#	#	#    Italien : it
+#	#	#    Espagnol : es
+#	#	#    Français : fr
+#	#	#    Allemand : de
+#	#	#    Anglais : en
+#	#	#    Portugais : pt
+#	#	#    Néerlandais : nl
+#	#	#    Russe : ru
+#	#	#    Grec : el
+#	#	#    Suédois : sv
+#	#	trans :fr file://output.txt > output_fr.txt
+
+#	#+++++++++++++++++++++++
+
+#	#!/bin/bash
+
+#	cd /home/lemp/Bureau
+
+#	# Demander à l'utilisateur le nom du fichier PDF d'entrée
+#	read -p "Veuillez entrer le nom du fichier PDF d'entrée (avec l'extension .pdf) : " input_file
+
+#	# Extraction des images PNG
+#	pdftoppm -png "$input_file" temp && 
+
+#	# Lecture des images PNG par OCR
+#	for file in temp-*.png; do
+#	    tesseract "$file" "${file%.png}" -l fra+eng 
+#	done &&
+
+#	# Grouper les fichiers en un fichier txt 
+#	cat temp-*.txt > output.txt &&
+
+#	# Supprimer les fichiers temporaires - image et - texte
+#	rm temp-*.png temp-*.txt
+
+#	# Traduire en français (de l'allemand, auto, en, etc.)
+#	#    Italien : it
+#	#    Espagnol : es
+#	#    Français : fr
+#	#    Allemand : de
+#	#    Anglais : en
+#	#    Portugais : pt
+#	#    Néerlandais : nl
+#	#    Russe : ru
+#	#    Grec : el
+#	#    Suédois : sv
+#	trans :fr file://output.txt > output_fr.txt
+
+#	# Afficher un message de sortie concernant les fichiers générés
+#	echo "L'extraction du texte a été réalisée avec succès."
+#	echo "Le fichier texte original est disponible sous le nom 'output.txt'."
+#	echo "La traduction en français est disponible sous le nom 'output_fr.txt'."
+
+		#+++++++++++++++++++++++++++++++++++++++++++++
+		#	# Convertir l'image-text.jpg en PDF consultable
+		#	# Creation d' un fichier output.pdf consultable 
+		#+++++++++++++++++++++++++++++++++++++++++++++
+
+		#!/bin/bash
+		# Conversion d'une image-texte (JPEG) en PDF avec le texte sous-jacent en Bash
+
+		convert image-text.jpg -density 300 -depth 8 image.tif  # ou convert image-text.png -density 300 -depth 8 image.tif
+		tesseract image.tif output -l eng  # fra  genere un ouput.txt
+		tesseract image.tif output -l eng pdf # genere un pdf avec texte sous-jacent
+		
+#+++++++++++++++++++++++++++++++++++++++++++++
+
