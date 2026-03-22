@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Configuration
+MAC="94:3A:DE:3C:5B:31"
+
+echo "--- Déconnexion du haut-parleur ---"
+# Déconnexion propre sans messages techniques
+bluetoothctl disconnect $MAC &>/dev/null
+sleep 1
+
+echo "--- Désactivation du Bluetooth ---"
+# Éteint la radio logiciellement puis matériellement
+bluetoothctl power off &>/dev/null
+rfkill block bluetooth
+
+echo "✅ Bluetooth éteint proprement."
+notify-send "Audio" "Bluetooth désactivé" -i bluetooth-offline

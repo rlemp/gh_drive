@@ -1,0 +1,32 @@
+#!/bin/bash
+
+read -p "d'accord?" reponse
+
+#	([[ $reponse =~ ^[oOyY] ]]&&printf "\n OK \n\n")||printf "\n  non? \n\n"
+
+
+#		case "${reponse,,}" in
+#		    oui|o|y|yes)
+#		        echo "Réponse affirmative."
+#		        ;;
+#		    *) # Le cas par défaut, si aucune des conditions précédentes n'est remplie
+#		        echo "Réponse non affirmative."
+#		        ;;
+#		esac
+
+
+#			case "${reponse,,}" in
+#			oui|o|y|yes)echo "Réponse affirmative.";;
+#			*)echo "Réponse non affirmative."
+#			esac
+
+
+ouinon() {
+case "${1,,}" in
+oui|o|y|yes)echo "Réponse affirmative.";;
+*)echo "Réponse non affirmative.";;
+esac
+}
+ouinon $reponse
+
+

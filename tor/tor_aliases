@@ -1,0 +1,15 @@
+# Activer Tor et configurer Firefox
+alias tor-on='sudo systemctl start tor && echo "user_pref(\"network.proxy.type\", 1); user_pref(\"network.proxy.socks\", \"127.0.0.1\"); user_pref(\"network.proxy.socks_port\", 9050); user_pref(\"network.proxy.socks_remote_dns\", true);" > /home/lemp/snap/firefox/common/.mozilla/firefox/fisb23gc.default/user.js && echo "Tor ACTIVE - Redémarrez Firefox"'
+
+# Désactiver Tor et remettre Firefox en direct
+alias tor-off='sudo systemctl stop tor && echo "user_pref(\"network.proxy.type\", 0);" > /home/lemp/snap/firefox/common/.mozilla/firefox/fisb23gc.default/user.js && echo "Tor DESACTIVE - Redémarrez Firefox"'
+
+# controle etat tor et firefox
+alias tor-status='torsocks curl https://check.torproject.org | grep -i "congratulations"'
+
+# controle fichier firefox/parametres/reseau
+alias tor-check='micro /home/lemp/snap/firefox/common/.mozilla/firefox/fisb23gc.default/user.js'
+
+# checking tor via firfox
+alias tor-check-firefox='firefox https://check.torproject.org/'
+

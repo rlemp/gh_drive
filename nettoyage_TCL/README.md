@@ -41,8 +41,8 @@ sudo adb start-server
 adb devices
 
 # 4. Lancer le nettoyage
-chmod +x nettoyage.sh
-./nettoyage.sh
+chmod +x nettoyage_TCL.sh
+./nettoyage_TCL.sh
 
 ```
 
@@ -66,7 +66,7 @@ chmod +x nettoyage.sh
 * **Lister les applications installées (bloatwares) :**
 `adb shell pm list packages -u`
 * **Éditer le script rapidement :**
-`micro nettoyage.sh`
+`micro nettoyage_TCL.sh`
 
 ---
 

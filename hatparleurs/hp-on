@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Configuration
+MAC="94:3A:DE:3C:5B:31"
+NAME="DAB Go"
+
+echo "--- Vérification du système ---"
+# 1. Relancer le service s'il est arrêté (évite le blocage)
+if ! systemctl is-active --quiet bluetooth; then
+    echo "Réactivation du service système Bluetooth..."
+    sudo systemctl start bluetooth
+    sleep 2
+fi
+
+# 2. Débloquer la radio (rfkill) et allumer l'adaptateur
+rfkill unblock bluetooth
+bluetoothctl power on &>/dev/null
+sleep 1
+
+echo "--- Connexion à $NAME ---"
+# 3. Marquer l'appareil comme sûr et tenter la connexion
+bluetoothctl trust $MAC &>/dev/null
+
+if bluetoothctl connect $MAC &>/dev/null; then
+    echo "✅ Bluetooth Connecté !"
+    echo "--- Configuration Audio ---"
+    
+    # 4. Attendre que PipeWire enregistre l'appareil (max 5 tentatives)
+    SINK_ID=""
+    for i in {1..5}; do
+        SINK_ID=$(wpctl status | grep -A 15 "Sinks:" | grep "$NAME" | sed 's/[^0-9]*//' | cut -d. -f1 | head -n 1 | xargs)
+        if [ -n "$SINK_ID" ]; then break; fi
+        sleep 1
+    done
+
+    # 5. Basculer le son et régler le volume
+    if [ -n "$SINK_ID" ]; then
+        wpctl set-default "$SINK_ID"
+        wpctl set-volume "$SINK_ID" 0.6
+        echo "✅ Audio dirigé vers $NAME (ID: $SINK_ID)"
+        notify-send "Audio" "$NAME est prêt !" -i audio-speakers
+    else
+        echo "⚠️  Connecté, mais l'ID audio n'a pas été détecté."
+    fi
+else
+    echo "❌ Échec de la connexion. Vérifiez que le haut-parleur est allumé."
+    exit 1
+fi
