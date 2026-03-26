@@ -1,0 +1,39 @@
+spb() {
+  local pass url
+  
+  # 1. Vérification immédiate de la source des données
+  # On vérifie si on a un fichier OU une entrée slidée (pipe)
+  if [ -t 0 ] && [ -z "$1" ]; then
+    echo "Erreur : Aucun fichier spécifié et aucun flux (pipe) détecté." >&2
+    return 1
+  fi
+
+  # 2. Lecture de la passphrase (silencieuse)
+  read -s -p "Entrez la phrase secrète pour le chiffrement : " pass < /dev/tty
+  echo "" >&2 
+
+  # 3. Traitement des données
+  if [ -n "$1" ]; then
+    # Cas du fichier passé en argument
+    url=$(cat "$1" | gpg -c --batch --passphrase "$pass" --armor | nc termbin.com 9999 | tr -d '\0')
+  else
+    # Cas du pipe : echo "test" | spb
+    url=$(gpg -c --batch --passphrase "$pass" --armor | nc termbin.com 9999 | tr -d '\0')
+  fi
+
+  # 4. Vérification du succès de l'envoi
+  if [ -z "$url" ]; then
+    echo "Erreur : Échec de l'envoi vers Termbin." >&2
+    return 1
+  fi
+
+read -p "description du transfert: "  description
+
+  # 5. Enregistrement et affichage
+  echo "$(date +%d%m%y-%H%M)   curl $url | gpg -d      $pass     $description" >> ~/Bureau/retours_termbin
+  
+  printf "\nLien généré : $url"
+  printf "\nPour déchiffrer plus tard : curl $url | gpg -d\n\n"
+  tail -n 1 ~/Bureau/retours_termbin
+  printf "\n"
+}
