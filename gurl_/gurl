@@ -1,0 +1,237 @@
+
+
+
+#!/bin/bash
+
+# ==============================================================================
+# Configuration & Localisation
+# ==============================================================================
+readonly BROWSER_DEFAULT="firefox"
+readonly PRIVATE_FLAG="--private-window"
+
+# ==============================================================================
+# Fonctions Utilitaires (Programmation défensive)
+# ==============================================================================
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+# ==============================================================================
+# Base de données des services (Mapping URLs)
+# ==============================================================================
+declare -A SERVICES=(
+    # --- Gestion de Compte & Sécurité ---
+    ["connections"]="https://myaccount.google.com/connections?filters=3,4&hl=fr" # Services tiers [cite: 1]
+    ["security"]="https://myaccount.google.com/security-checkup/2"              # Checkup sécurité [cite: 1]
+    ["takeout"]="https://takeout.google.com/"                                   # Google Takeout [cite: 1]
+    ["passwords"]="https://passwords.google.com/"                               # Google Passwords [cite: 1]
+    ["storage"]="https://one.google.com/storage?hl=fr"                          # Stockage Google One [cite: 1]
+    ["activity"]="https://myactivity.google.com/myactivity"                     # Activité Google [cite: 1]
+    ["dashboard"]="https://myaccount.google.com/dashboard"                      # Dashboard [cite: 1]
+    ["profile"]="https://myaccount.google.com/profile"                          # Mon profil [cite: 1]
+    ["gmail"]="https://www.labnol.org/internet/gmail-search-tips/29206"  # recherche dans gmail 
+    
+    # --- Outils de Recherche & Analyse ---
+    ["factcheck"]="https://toolbox.google.com/factcheck/markuptool"             # Fact Check Tool [cite: 1]
+    ["trends"]="https://trends.google.com/trends/"                              # Google Trends [cite: 1]
+    ["scholar"]="https://scholar.google.ch/"                                    # Google Scholar [cite: 1]
+    ["books"]="https://books.google.com/"                                       # Google Books [cite: 1]
+    ["wolfram"]="https://www.wolframalpha.com/input/?i=french"                  # Wolfram Alpha [cite: 1, 2]
+    
+    # --- Confidentialité & Utilitaires ---
+    ["webkay"]="https://webkay.robinlinus.com/"                                 # Ce que sait le navigateur [cite: 1]
+    ["superlogout"]="https://superlogout.com/"                                  # Déconnexion massive [cite: 1]
+    ["deleteme"]="https://backgroundchecks.org/justdeleteme/"                   # Supprimer compte [cite: 1]
+    ["deepweb"]="https://deep-web.org/how-to-research/deep-web-search-engines/" # Recherche Deep Web [cite: 1]
+    ["yandex"]="https://passport.yandex.com/"                                   # Yandex Auth [cite: 1]
+    ["checkurl"]="https://www.bitdefender.com/en-us/consumer/link-checker"                       # ckeck malware phishing url
+    ["checkshorturl"]="https://checkshorturl.com/"                       # ckeck shortg url
+)
+
+# ==============================================================================
+# Affichage & Menu
+# ==============================================================================
+show_menu() {
+    cat << _EOF_
+    
+    Gestion Google & Recherche :
+    ----------------------------------------------------------------------------
+    connections | security | takeout | passwords | storage  | activity
+    dashboard   | profile  | trends  | scholar   | books    | factcheck | gmail	
+    
+    Outils Externes & Vie Privée :
+    ----------------------------------------------------------------------------
+    webkay        | superlogout | deleteme | deepweb | yandex | wolfram | checkurl
+    checkshorturl |
+    
+_EOF_
+}
+
+# ==============================================================================
+# Exécution Principale
+# ==============================================================================
+main() {
+    show_menu
+    
+    while true; do
+        read -p "Votre choix : " choice
+        
+        # Vérification si le choix existe dans le tableau
+        if [[ -n "${SERVICES[$choice]}" ]]; then
+            local url="${SERVICES[$choice]}"
+            
+            # Application de la programmation défensive pour le binaire
+            if command_exists "$BROWSER_DEFAULT"; then
+                echo "Ouverture de $choice..."
+                
+                # Exemple de condition spécifique : navigation privée pour la vie privée
+                if [[ "$choice" == "webkay" || "$choice" == "superlogout" ]]; then
+                    "$BROWSER_DEFAULT" "$PRIVATE_FLAG" "$url"
+                else
+                    "$BROWSER_DEFAULT" "$url"
+                fi
+                break
+            else
+                echo "Erreur : $BROWSER_DEFAULT non trouvé sur le système."
+                exit 1
+            fi
+        else
+            echo "Choix invalide. Veuillez réessayer."
+        fi
+    done
+}
+
+main "$@"
+
+
+
+##!/bin/bash
+
+## **************************************************************************************************************************************************
+#cat << _end_of_text
+
+#		Rappel: Invites...............Personal/Task/Content/Format 
+#		Preference_personelle/description_Tache/analyse_Contenu/Format_resultat
+#		
+#		Choisissez parmi les options suivantes :  
+#		
+#		prompt_generator    (invites, un peu compliqué)
+#		
+#		...................................................
+#		
+#		gemini     (resumes video youtube avec 2.0 Flash Thinking Experimental)
+#		ddg  duckduckgo ai	 (excellent, chatgpt 3.5 claude  anonyme) 
+#		duckai  duckai.ai  (excellent)
+#		khoj   (login filsapaul, excellent pour bash, peut etre integre a obsidian)
+#		deepseek  (resume site web, documents joints accepte, rapide)
+#		notebookLM  (resume et chat de Document)
+#		apertus (swiss ai)
+#		jan   utilise google search
+#		brave    leo ai
+#		
+#		deep  (gratuit sans inscription, garde les chats comme duch.ai ,image generative)
+#		manus  televersement fichier, bon depannage, chinois
+#		grok  (collecte min donnees)
+#		perplexity  (excellent)     (glisser/deposer fichiers, bon resume; Pro Search 5/jour)
+#		aria   (opera)   (resume site web, clic sur ai)
+#		
+#		warp (terminal warp AI)
+#		gemstart     gemini-cli  (gemini terminal)
+#		.................................................		
+#		copilot   (ajout images posssible, aide achats)
+#		you     (bon chat) (télécharger différents types de fichiers, bon resume)
+#		
+#		math1 walfa math3 math4 (problemes mat. p.e résoudre pour b :     (2 / (b - 3)) - (6 / (2b + 1)) = 4 )
+#		mathgpt  (résoudre par image des problemes de math, phys., chimie)
+#		.................................................
+#		huggingface  (telechargement d'image possible, differents modeles)
+#		hugging-energy  (consommation d'energie par chatbot)
+#		hamster   (prive, 250 chats gratuits/mois resume page_web)	
+#		luma   (video a partir de photos)	
+#		smmry  (resume un doc, url, un texte))
+#		exa  (coller un lien et en trouver des similaires, neo-moteur de recherche )
+#		andi  (respectueux de la confidentialité, moteur de recherche)
+#		
+#		godmode
+#		pdf     (payant, resume et chat de pdf)
+#		chatpdf   (questions pertinentes au sujet d'un pdf )
+#		gab
+#		claude (integre a ddg)
+#		talkai  (francais https://claude.talkai.info/fr/chat/)
+#		monica resumer/reorganiser/mindmap texte/document
+#		genius
+#		chatbotgpt   (pas de resume web)
+#		
+#		phind     (top programmation bash, gors service)
+#		
+#_end_of_text
+
+## **************************************************************************************************************************************************
+#liste=("phind" "you" "gemini" "godmode" "copilot" "chatpdf" "pdf" "gab" "claude" "genius" "perplexity" "chatbotgpt" "huggingface" "hugging-energy" "prompt_generator" "math1" "walfa" "math3" "math4" "ddg" "exa" "andi" "aria" "smmry" "khoj" "hamster" "luma" "deepai" "mathgpt" "talkai" "monica" "deepseek" "grok" "manus" "notebookLM" "deep" "warp" "apertus"  "jan" "duckai" "gemstart" "brave")
+
+## **************************************************************************************************************************************************
+## choix
+#			while true; do	   
+#			read -p "Votre choix : " ai
+#			   	 if [[ " ${liste[@]} " =~ " ${ai} " ]]; then
+#				       echo "$ai s'ouvre dans le navigateur."
+#				       break
+#				       else
+#				       echo "Entrée invalide. Veuillez choisir parmi les options proposees."
+#				 fi
+#			done
+# 						
+## ************************************************************************************************************************************************** 
+# 					
+# 			case $ai in
+#  				phind) firefox https://www.phind.com/search?cache=0eeabbd6-e7aa-4ad4-90df-7ff9685fa5cd&init=true ;;
+#  				hamster) firefox https://app.hamsterai.net/Hamster_Ai_Chat_G7BBZ ;;
+#  				you) epiphany https://you.com/search?fromSearchBar=true&tbm=youchat   ;;  #  min https://www.you.com
+#  				godmode) falkon https://godmode.space/ ;;
+#  				copilot)  firefox https://copilot.microsoft.com/ ;;
+#  				gemini) firefox https://gemini.google.com/app ;;	
+#  				chatpdf) firefox https://www.chatpdf.com/ ;;
+#  				deepseek) firefox https://chat.deepseek.com/ ;;
+#  				deep) firefox https://deepai.org/chat ;;
+#  				grok) firefox https://grok.com/?ref=aiartweekly ;;
+#  				pdf) firefox https://pdf.ai/ ;;
+#  				gab) falkon https://gab.ai/c/65e744e03c0930cbfc78cb94 ;;
+#  				claude) firefox https://www.anthropic.com/news/claude-2 ;;
+#  				genius) falkon https://essaygenius.ai/ ;;
+#  				perplexity) firefox  https://www.perplexity.ai/ ;;
+#  				khoj) firefox https://app.khoj.dev ;;
+#  				chatbotgpt) waterfox https://www.chatbotgpt.fr/index4.html ;;
+#  							# firefox https://chat.openai.com/auth/login ;;
+#  				huggingface) firefox https://huggingface.co/chat/ ;;
+#			  				#https://huggingface.co/chat/conversation/67a4e315326ba42a5b27fc4e
+#			  	hugging-energy) firefox https://huggingface.co/spaces/jdelavande/chat-ui-energy ;;
+#  				prompt_generator) firefox https://www.reliablesoft.net/ai-text-generator-tools/prompt-generator/ ;;
+#  				luma) firefox https://lumalabs.ai/dream-machine/creations ;;
+#  				math1) firefox https://thetawise.ai/ ;;
+#  				walfa) firefox https://www.wolframalpha.com/ ;;
+#  				math3) firefox https://julius.ai/home/ai-math ;;
+#  				math4) firefox https://math.microsoft.com/en ;;  							
+#  				mathgpt) firefox https://math-gpt.org/ ;;
+#  				duckai) epiphany "https://duckai.ai/"  ;;  
+#  				ddg) firefox firefox  --private-window https://duck.ai/  ;;
+#  				brave) firefox https://search.brave.com/ask ;;
+#  				exa) firefox https://exa.ai/search?c=all ;;   		# ai search web: excellent
+#  				andi) firefox https://andisearch.com/ ;;
+#  				aria) opera ;;
+#  				smmry) opera https://smmry.com/ ;;
+#  				deepai) firefox https://deepai.org/machine-learning-model/text2img ;;
+#  				talkai) firefox https://claude.talkai.info/fr/chat/ ;;
+#  				monica) firefox https://monica.im/home/chat/Monica/monica?convId=conv%3A14a328b8-f97d-41b1-94c9-504ca3da7fce ;;  # https://monica.im/home/chat/Monica/monica
+#  				manus) firefox https://manus.im/app ;;
+#  				notebookLM) firefox https://notebooklm.google.com/ ;;
+#  				warp) warp-terminal ;;
+#  				
+#  				jan) firefox firefox  --private-window https://chat.jan.ai/  ;;
+#  				apertus)  firefox firefox  --private-window https://chat.publicai.co/c/7023a61c-419e-40f3-9196-67335e5c9c8d   ;;  # firefox https://publicai.co/
+#  				notebookLM) firefox https://notebooklm.google.com/ ;;
+#  				gemstart) gemstart ;;
+#  				
+#  				*)  echo "aucune bonne option: stop (ctrl c)" ;;
+#    			esac
+#    			
+

@@ -1,0 +1,75 @@
+#!/bin/bash
+
+cd  /home/lemp/Bureau/
+
+# Utilise le fichier passé en argument, ou export.csv par défaut
+FILE="${1:-export.csv}"
+
+if [ ! -f "$FILE" ]; then
+    echo "Erreur : Le fichier '$FILE' est introuvable."
+    exit 1
+fi
+
+tail -n +8 "$FILE" | head -n -3 | tac | awk -F';' '{
+    # 1. Formatage de la date
+    split($1, d, ".")
+    date_iso = d[3] "-" d[2] "-" d[1]
+
+    # 2. Nettoyage de la description
+    desc = tolower($3)
+    gsub(/"/, "", desc)
+
+    # 3. Identification du nom (ajout de "urf")
+    if (desc ~ /comp/) res_name = "avs_mc"
+    else if (desc ~ /crédit/) res_name = "remboursement"
+    else if (desc ~ /aligro/) res_name = "aligro"
+    else if (desc ~ /coop/) res_name = "coop"
+    else if (desc ~ /migros/) res_name = "migros"
+    else if (desc ~ /denner/) res_name = "denner"
+    else if (desc ~ /manor/) res_name = "manor"
+    else if (desc ~ /galenicare/) res_name = "sunstore"
+    else if (desc ~ /boucherie/) res_name = "boucherie_crettaz"
+    else if (desc ~ /jumbo/) res_name = "jumbo"
+    else if (desc ~ /package/) res_name = "frais"
+   #	    else if (desc ~ /nouveau/) res_name = "nouveau"
+    else res_name = "divers"
+         
+
+    # 4. Gestion dynamique du montant (Colonne 4 si 5 est vide)
+    # Si la colonne 5 est vide ou égale à 0, on prend la colonne 4
+    if ($5 == "" || $5 == "0") {
+        montant = $4
+    } else {
+        montant = $5
+    }
+
+    # 5. Catégorie automatique
+    if (res_name == "avs_mc") expenses = "revenues:avs"
+    else if (res_name == "sunstore") expenses = "expenses:sante"
+    else if (res_name == "jumbo") expenses = "expenses:installation"
+    else if (res_name == "frais") expenses = "expenses:finance"
+    else expenses = "expenses:alimentation"
+
+    # 6. Affichage au format hledger (Note les doubles espaces)
+    if (montant != "") {
+        # Deux espaces entre date et description
+        printf("%s  %s\n", date_iso, res_name)
+        # Deux espaces entre compte et montant
+        printf("    assets:ccp  %.2f\n", montant)
+        printf("    %s\n\n", expenses)
+    }
+}' > output4hledger
+
+
+
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+##!/bin/bash
+
+##pour le fichir csv ubs:
+
+##awk -F';' '{
+##    printf "%-20s    %-20s    %-20s    %-20s\n", $1, $7, $9, $11  
+##}' transactions.csv > ~/Bureau/output0
+

@@ -1,0 +1,103 @@
+
+
+#!/bin/bash
+
+#++++++++++++ccp version 2++++++++++++++++++++
+
+#+++++++++generate_price_usd++++++++++++++++++++
+
+generate_price_usd() {
+
+local  $yesterday_date $exchange_rate $output_string
+
+#README++++++++++++++++++++++++++++++++++++++++++
+#generer dans la souris la directive "price" usd a la date d'aujourd'hui
+#+++++++++++++++++++++++++++++++++++++++++++++++
+
+# Get the current date in YYYY-MM-DD format
+
+#	current_date=$(date +%Y-%m-%d)
+
+yesterday_date=$(date -d "yesterday" +%Y-%m-%d)
+
+# Fetch the USD to CHF exchange rate from ZoneBourse
+# The original command was: curl -s https://www.zonebourse.com/cours/devise/US-DOLLAR-SWISS-FRANC-USD-4597/ | grep '"price":' | awk -F'[:" ]+' '{printf "last USD = %.3f CHF", $3}'
+# We adapt it to only output the numerical price
+exchange_rate=$(curl -s https://www.zonebourse.com/cours/devise/US-DOLLAR-SWISS-FRANC-USD-4597/ | grep '"price":' | awk -F'[:" ]+' '{printf "%.3f", $3}')
+
+# Construct the final output string in the desired format
+# Example: P 2026-03-14 USD 0.791 CHF
+
+#	output_string="P ${current_date} USD ${exchange_rate} CHF"
+
+output_string="P ${yesterday_date} USD ${exchange_rate} CHF"
+
+# Print the final string
+echo "${output_string}" | xclip
+
+sed -i "4c$output_string" ~/.hledger.directives
+
+
+micro "$HOME/.hledger.directives" &&
+
+read -p " completer le journal avec le pris usd (clic souris) et ^s ^q  et ok pour continuer"
+micro "$HOME/.hledger.journal"
+}
+
+#+++++++++++++++++++hl+++++++++++++++++++++++++
+
+
+hl_fonction() {
+
+local $RAW $TRIE $DIR
+
+#wrapper
+	
+#Si tu tapes ./hl.sh, il fait ton rapport habituel.
+#Si tu tapes ./hl.sh reg alimentation, il va chercher dans ton journal trié toutes les dépenses de nourriture.	
+
+
+# Chemins des fichiers
+RAW="$HOME/.hledger.journal"
+TRIE="$HOME/.hledger.journal_trie"
+DIR="$HOME/.hledger.directives"
+
+# 1. Tri automatique silencieux
+hledger -f "$RAW" print > "$TRIE"
+
+#printf "\n\n exemples \nhl (fortune) \nhl areg ccp -p 'this week' (soldes) \nhl accounts (liste) \n\n\n"
+
+cat <<'EOF'                                                                            
+
+	 exemples: 
+	 hl (fortune) 
+	 hl areg ccp -p 'this week' (soldes)
+	 hl reg alimentation -p 'this week' (totaux) 
+	 hl reg 'ccp|bcvs' -p 'this week' (totaux) 
+	 hl accounts (liste) 
+
+
+EOF
+
+# 2. Exécution de la commande demandée ou balance par défaut
+if [ $# -eq 0 ]; then
+    hledger -f "$TRIE" -f "$DIR" bs assets -e today -X CHF
+else
+    hledger -f "$TRIE" -f "$DIR" "$@"
+fi
+}
+
+#+++++++++++++ main++++++++++++
+
+csv2hledger.sh "$HOME/Téléchargements/"*.csv
+mv "$HOME/Téléchargements/"*.csv  "$HOME/Bureau/hledger_labo/csv2hledger/"
+generate_price_usd
+hl_fonction
+
+read -p "voir les depenses et les bilans par semaine? ok"
+
+# t (tree) H(period/history) shift-left (previous)
+hledger-ui assets expencies -X CHF --period "this week" --all --tree  
+
+
+

@@ -4,7 +4,7 @@ Voici un fichier **README.md** structuré et clair que vous pouvez garder à cô
 
 ---
 
-### `README.md` pour `nettoyage.sh`
+### `README.md` pour `nettoyage_TCL.sh`
 
 ## 🧹 Script de Nettoyage Android via ADB
 
@@ -13,13 +13,19 @@ Ce script permet de purger les fichiers temporaires, les caches applicatifs et l
 ### 📋 Prérequis
 
 1. **Sur la Tablette :**
-* **Options développeurs** activées (7 clics sur "Numéro de build").
-* **Débogage USB** activé.
+* **Options développeurs** activées (7 clics sur "Numéro de build"). (parametres/a propos tablette/numero build)
+* **Débogage USB** activé (parametres/systeme/options developpeur/debogage/debogage usb).
 
 
 2. **Sur le PC Linux :**
 * Paquet `android-tools` ou `adb` installé.
 * Câble USB de bonne qualité.
+* dès que le cable est branché: autoriser 'transfert fichiers'
+
+* sur le pc, lancer: adb devices
+        et autoriser sur TCL ( et cocher toujours autoriser sur cet ordinateur)
+        relancez: adb devices = ...attached
+* lancez nettoyage_TCL.sh.
 
 
 

@@ -24,9 +24,26 @@ Cette fonction effectue les tâches suivantes :
 spb fichier.txt
 ```
 
-### 2. Envoyer des données via un pipe
+### 2. Envoyer des données via un pipe ou << ou heredoc
 ```bash
 echo "Message secret" | spb
+```
+
+```bash
+printf %s "	chaine " | spb
+```
+
+```bash
+spb<<<'
+Message secret
+'
+```
+
+```bash
+sbp<<eof
+	Message
+	secret
+eof
 ```
 Ou encore :
 ```bash

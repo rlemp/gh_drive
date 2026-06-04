@@ -1,0 +1,53 @@
+
+
+#!/bin/bash
+
+#++++++++++++ccp version 3++++++++++++++++++++
+
+generate_price_usd() {
+
+local  $yesterday_date $exchange_rate $output_string
+
+yesterday_date=$(date -d "yesterday" +%Y-%m-%d)
+
+exchange_rate=$(curl -s https://www.zonebourse.com/cours/devise/US-DOLLAR-SWISS-FRANC-USD-4597/ | grep '"price":' | awk -F'[:" ]+' '{printf "%.3f", $3}')
+
+output_string="P ${yesterday_date} USD ${exchange_rate} CHF"
+
+echo "${output_string}" | xclip
+
+echo "${output_string}" >>$HOME/.hledger.journal
+
+sed -i "4c$output_string" $HOME/.hledger.directives
+}
+
+#+++++++++++++update journal trie+++++++++++++++++
+
+update_journal_trie() {
+
+local $RAW $TRIE 
+
+RAW="$HOME/.hledger.journal"
+TRIE="$HOME/.hledger.journal_trie"
+
+hledger -f "$RAW" print > "$TRIE"
+}
+
+#+++++++++++++ main++++++++++++
+
+csv2hledger.sh "$HOME/Téléchargements/"*.csv
+
+mv "$HOME/Téléchargements/"*.csv  "$HOME/Bureau/hledger_labo/csv2hledger/"
+
+generate_price_usd
+
+update_journal_trie
+
+echo ""
+read -p "depenses et les bilans par semaine? ok"
+echo ""
+
+hledger-ui assets expencies -X CHF --period "this week" --all --tree  
+
+
+

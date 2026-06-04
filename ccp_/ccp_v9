@@ -1,0 +1,129 @@
+#!/bin/bash
+generate_price_usd() {
+  local $yesterday_date $exchange_rate $output_string
+  yesterday_date=$(date -d "yesterday" +%Y-%m-%d)
+  exchange_rate=$(curl -s https://www.zonebourse.com/cours/devise/US-DOLLAR-SWISS-FRANC-USD-4597/ | grep '"price":' | awk -F'[:" ]+' '{printf "%.3f", $3}')
+  output_string="P $yesterday_date USD $exchange_rate CHF"
+  echo "$output_string" | xclip
+  echo "$output_string" >>$HOME/.hledger.journal
+  sed -i "4c$output_string" $HOME/.hledger.directives
+}
+
+update_journal_trie() {
+  local $RAW $TRIE
+  RAW="$HOME/.hledger.journal"
+  TRIE="$HOME/.hledger.journal_trie"
+  hledger -f "$RAW" print >"$TRIE"
+}
+
+display() {
+  local choix
+  local period_arg
+  local journal_file="$HOME/.hledger.journal"
+  local currency="CHF"
+  if ! command -v hledger-ui &>/dev/null; then
+    echo "Erreur : La commande 'hledger-ui' n'est pas trouvée."
+    return 1
+  fi
+  if [[ ! -f $journal_file ]]; then
+    echo "Erreur : Le fichier '$journal_file' est introuvable."
+    return 1
+  fi
+  
+  echo "----------------------------------------"
+  echo "Analyse des comptes (hledger-ui)"
+  echo "----------------------------------------"
+  echo "1. Semaine"
+  echo "2. Mois"
+  echo "3. Année"
+  echo "----------------------------------------"
+
+  read -r -p "Votre choix (1-3) : " choix
+  { [[ "$choix" == "1" ]] && period_arg="this week"; }  || \
+  { [[ "$choix" == "2" ]] && period_arg="this month"; } || \
+  { [[ "$choix" == "3" ]] && period_arg="this year"; }  || \
+  { echo "Choix invalide. Veuillez sélectionner 1, 2 ou 3."; return 1; }    
+    
+  echo "Lancement de l'interface UI pour : $period_arg..."
+  hledger-ui assets expencies -X "$currency" --period "$period_arg" --all --tree
+  return 0
+}
+
+csv2hledger(){
+
+local FILE
+
+cd  $HOME/Bureau/
+
+# Utilise le fichier passé en argument, ou export.csv par défaut
+FILE="${1:-export.csv}"
+
+if [ ! -f "$FILE" ]; then
+    echo "Erreur : Le fichier '$FILE' est introuvable."
+    exit 1
+fi
+
+tail -n +8 "$FILE" | head -n -3 | tac | awk -F';' '{
+    # 1. Formatage de la date
+    split($1, d, ".")
+    date_iso = d[3] "-" d[2] "-" d[1]
+
+    # 2. Nettoyage de la description
+    desc = tolower($3)
+    gsub(/"/, "", desc)
+
+    # 3. Identification du nom (ajout de "urf")
+    if (desc ~ /comp/) res_name = "avs_mc"
+    else if (desc ~ /crédit/) res_name = "remboursement"
+    else if (desc ~ /aligro/) res_name = "aligro"
+    else if (desc ~ /coop/) res_name = "coop"
+    else if (desc ~ /migros/) res_name = "migros"
+    else if (desc ~ /denner/) res_name = "denner"
+    else if (desc ~ /manor/) res_name = "manor"
+    else if (desc ~ /galenicare/) res_name = "sunstore"
+    else if (desc ~ /boucherie/) res_name = "boucherie_crettaz"
+    else if (desc ~ /jumbo/) res_name = "jumbo"
+    else if (desc ~ /package/) res_name = "frais"
+   #	    else if (desc ~ /nouveau/) res_name = "nouveau"
+    else res_name = "divers"
+         
+
+    # 4. Gestion dynamique du montant (Colonne 4 si 5 est vide)
+    # Si la colonne 5 est vide ou égale à 0, on prend la colonne 4
+    if ($5 == "" || $5 == "0") {
+        montant = $4
+    } else {
+        montant = $5
+    }
+
+    # 5. Catégorie automatique
+    if (res_name == "avs_mc") expenses = "revenues:avs"
+    else if (res_name == "sunstore") expenses = "expenses:sante"
+    else if (res_name == "jumbo") expenses = "expenses:equipement"
+    else if (res_name == "frais") expenses = "expenses:finance"
+    else expenses = "expenses:alimentation"
+
+    # 6. Affichage au format hledger (Note les doubles espaces)
+    if (montant != "") {
+        # Deux espaces entre date et description
+        printf("%s  %s\n", date_iso, res_name)
+        # Deux espaces entre compte et montant
+        printf("    assets:ccp  %.2f\n", montant)
+        printf("    %s\n\n", expenses)
+    }
+}' > output4hledger
+}
+
+#csv2hledger "$HOME/Téléchargements/"*.csv
+csv2hledger "$(ls -t "$HOME/Téléchargements/"*.csv 2>/dev/null | head -n1)"
+mv -i "$HOME/Téléchargements/"*.csv "$HOME/Bureau/hledger_labo/csv2hledger/"
+
+echo "----------------------------------------------------------------------------"
+echo "ouverture de output4 et du journal pour mise a jour...."
+echo "----------------------------------------------------------------------------"
+
+gedit --wait $HOME/.hledger.journal  $HOME/Bureau/output4hledger  &&
+
+generate_price_usd
+update_journal_trie
+display

@@ -1,0 +1,200 @@
+2026-03-03  migros
+    assets:ccp  -107.95
+    expenses:alimentation
+
+2026-03-03  aligro
+    assets:ccp  -80.85
+    expenses:alimentation
+
+2026-03-03  coop
+    assets:ccp  -77.50
+    expenses:alimentation
+
+2026-03-03  coop
+    assets:ccp  -9.70
+    expenses:alimentation
+
+2026-03-03  coop
+    assets:ccp  -28.90
+    expenses:alimentation
+
+2026-03-04  avs_mc
+    assets:ccp  1685.00
+    revenues:avs
+
+2026-03-10  migros
+    assets:ccp  -95.55
+    expenses:alimentation
+
+2026-03-10  sunstore
+    assets:ccp  -267.15
+    expenses:sante
+
+2026-03-10  aligro
+    assets:ccp  -51.00
+    expenses:alimentation
+
+2026-03-10  denner
+    assets:ccp  -58.80
+    expenses:alimentation
+
+2026-03-10  coop
+    assets:ccp  -107.30
+    expenses:alimentation
+
+2026-03-10  coop
+    assets:ccp  -34.90
+    expenses:alimentation
+
+2026-03-17  sunstore
+    assets:ccp  -81.80
+    expenses:sante
+
+2026-03-17  migros
+    assets:ccp  -70.00
+    expenses:alimentation
+
+2026-03-17  coop
+    assets:ccp  -111.90
+    expenses:alimentation
+
+2026-03-17  coop
+    assets:ccp  -30.90
+    expenses:alimentation
+
+2026-03-24  sunstore
+    assets:ccp  -51.50
+    expenses:sante
+
+2026-03-24  migros
+    assets:ccp  -300.00
+    expenses:alimentation
+
+2026-03-24  migros
+    assets:ccp  -65.05
+    expenses:alimentation
+
+2026-03-24  aligro
+    assets:ccp  -131.40
+    expenses:alimentation
+
+2026-03-24  aligro
+    assets:ccp  -17.50
+    expenses:alimentation
+
+2026-03-24  denner
+    assets:ccp  -100.20
+    expenses:alimentation
+
+2026-03-24  coop
+    assets:ccp  -84.10
+    expenses:alimentation
+
+2026-03-24  coop
+    assets:ccp  -36.90
+    expenses:alimentation
+
+2026-03-31  frais
+    assets:ccp  -5.00
+    expenses:finance
+
+2026-03-31  migros
+    assets:ccp  -90.85
+    expenses:alimentation
+
+2026-03-31  aligro
+    assets:ccp  -53.50
+    expenses:alimentation
+
+2026-03-31  coop
+    assets:ccp  -70.55
+    expenses:alimentation
+
+2026-03-31  coop
+    assets:ccp  -28.90
+    expenses:alimentation
+
+2026-04-07  avs_mc
+    assets:ccp  1685.00
+    revenues:avs
+
+2026-04-07  migros
+    assets:ccp  -95.40
+    expenses:alimentation
+
+2026-04-07  aligro
+    assets:ccp  -77.40
+    expenses:alimentation
+
+2026-04-07  coop
+    assets:ccp  -106.30
+    expenses:alimentation
+
+2026-04-07  coop
+    assets:ccp  -34.90
+    expenses:alimentation
+
+2026-04-07  denner
+    assets:ccp  -38.40
+    expenses:alimentation
+
+2026-04-14  migros
+    assets:ccp  -141.70
+    expenses:alimentation
+
+2026-04-14  aligro
+    assets:ccp  -70.65
+    expenses:alimentation
+
+2026-04-14  coop
+    assets:ccp  -21.75
+    expenses:alimentation
+
+2026-04-14  coop
+    assets:ccp  -34.90
+    expenses:alimentation
+
+2026-04-14  denner
+    assets:ccp  -19.95
+    expenses:alimentation
+
+2026-04-21  divers
+    assets:ccp  -56.00
+    expenses:alimentation
+
+2026-04-21  migros
+    assets:ccp  -98.80
+    expenses:alimentation
+
+2026-04-21  aligro
+    assets:ccp  -32.90
+    expenses:alimentation
+
+2026-04-21  coop
+    assets:ccp  -40.30
+    expenses:alimentation
+
+2026-04-21  coop
+    assets:ccp  -28.90
+    expenses:alimentation
+
+2026-04-21  denner
+    assets:ccp  -24.90
+    expenses:alimentation
+
+2026-04-28  migros
+    assets:ccp  -94.25
+    expenses:alimentation
+
+2026-04-28  jumbo
+    assets:ccp  -99.85
+    expenses:equipement
+
+2026-04-28  coop
+    assets:ccp  -90.90
+    expenses:alimentation
+
+2026-04-28  coop
+    assets:ccp  -30.90
+    expenses:alimentation
+

@@ -1,0 +1,92 @@
+display() {
+  local choix
+  local period_arg
+  local journal_file="$HOME/.hledger.journal"
+  local currency="CHF"
+
+  # Vérification des prérequis
+  if ! command -v hledger-ui &>/dev/null; then
+    echo "Erreur : La commande 'hledger-ui' n'est pas trouvée."
+    return 1
+  fi
+
+  if [[ ! -f "$journal_file" ]]; then
+    echo "Erreur : Le fichier '$journal_file' est introuvable."
+    return 1
+  fi
+
+  # Menu utilisateur
+  echo "----------------------------------------"
+  echo "Analyse des comptes (hledger-ui)"
+  echo "----------------------------------------"
+  echo "1. Semaine"
+  echo "2. Mois"
+  echo "3. Année"
+  echo "----------------------------------------"
+  
+  read -r -p "Votre choix (1-3) : " choix
+
+  # Logique compacte && / ||
+{ [[ "$choix" == "1" ]] && period_arg="this week"; }  || \
+{ [[ "$choix" == "2" ]] && period_arg="this month"; } || \
+{ [[ "$choix" == "3" ]] && period_arg="this year"; }  || \
+{ echo "Choix invalide. Veuillez sélectionner 1, 2 ou 3."; return 1; }
+
+
+  echo "Lancement de l'interface UI pour : $period_arg..."
+  
+  hledger-ui assets expencies \
+    -X "$currency" \
+    --period "$period_arg" \
+    --all \
+    --tree
+
+  return 0
+}
+
++++++++++++++++++++++++++++++++++++++++
+
+display() {
+  local choix
+  local period_arg
+  local journal_file="$HOME/.hledger.journal"
+  local currency="CHF"
+
+  # Vérification des prérequis (Programmation défensive)
+  if ! command -v hledger-ui &>/dev/null; then
+    echo "Erreur : La commande 'hledger-ui' n'est pas trouvée."
+    return 1
+  fi
+
+  if [[ ! -f "$journal_file" ]]; then
+    echo "Erreur : Le fichier '$journal_file' est introuvable."
+    return 1
+  fi
+
+  # Menu
+  echo "----------------------------------------"
+  echo "Analyse des comptes (hledger-ui)"
+  echo "----------------------------------------"
+  echo "1. Semaine"
+  echo "2. Mois"
+  echo "3. Année"
+  echo "----------------------------------------"
+  
+  read -r -p "Votre choix (1-3) : " choix
+
+  # Dispatching via chainage logique regroupé
+  { [[ "$choix" == "1" ]] && period_arg="this week"; }  || \
+  { [[ "$choix" == "2" ]] && period_arg="this month"; } || \
+  { [[ "$choix" == "3" ]] && period_arg="this year"; }  || \
+  { echo "Choix invalide. Veuillez sélectionner 1, 2 ou 3."; return 1; }
+
+  echo "Lancement de l'interface UI pour : $period_arg..."
+  
+  hledger-ui assets expencies \
+    -X "$currency" \
+    --period "$period_arg" \
+    --all \
+    --tree
+
+  return 0
+}

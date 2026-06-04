@@ -1,0 +1,6 @@
+csv2hledger.sh ~/Téléchargements/*.csv
+mv ~/Téléchargements/*.csv  ~/Bureau/hledger_labo/csv2hledger/
+generate_price_usd.sh
+hl
+read -p "voir les depenses et les bilans par semaine? ok"
+hledger-ui assets expencies -X CHF --period "this week" --all --tree  # t (tree) H(period/history) shift-left (previous)
